@@ -51,7 +51,7 @@ $ dl24-manage -p /dev/ttyUSB0 read -f json
   "voltage": 11.809,
   "current": 9.999,
   "energy": 19.841,
-  "charge": 238.5,
+  "capacity": 238.5,
   "time": "01:59:03",
   "temperature": 35,
   "current_limit": 10.0,

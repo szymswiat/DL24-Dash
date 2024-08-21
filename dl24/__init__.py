@@ -236,7 +236,7 @@ class DL24:
         pa = self.read_value([CAP_WH, 0, 0])
         return unpack_uint24(pa) / 1000
 
-    def get_charge(self) -> float:
+    def get_capacity(self) -> float:
         pa = self.read_value([CAP_AH, 0, 0])
         return unpack_uint24(pa) / 1000
 
