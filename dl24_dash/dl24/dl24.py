@@ -9,7 +9,7 @@ from typing import Optional
 
 import serial
 
-from dl24.crc import calc_crc_for_payload
+from dl24_dash.dl24.crc import calc_crc_for_payload
 
 logger = logging.getLogger("dl24.serial")
 
