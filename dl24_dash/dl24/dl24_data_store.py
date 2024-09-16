@@ -106,6 +106,12 @@ class DL24DataStore:
             self.write_csv()
             await asyncio.sleep(5)
 
+    def session_exists(self) -> bool:
+        return (self.data_path / f"{self.session_name}.csv").is_file()
+
     def restore_session(self):
-        if (self.data_path / f"{self.session_name}.csv").is_file():
+        if self.session_exists():
             self.df = pl.read_csv(self.data_path / f"{self.session_name}.csv")
+
+    def filter_by_current(self, min_current: float):
+        self.df = self.df.filter(pl.col("current") > min_current)

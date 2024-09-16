@@ -44,8 +44,18 @@ class DischargePlotter:
     def plot_data(self) -> go.Figure:
         fig = go.Figure()
 
+        fig.update_layout(
+            hoverlabel=dict(
+                bgcolor="white",
+                font_size=16,
+                font_family="Courier"
+            )
+        )
+
         for data_store in self.data_stores:
-            assert data_store.df is not None
+            if data_store.df is None:
+                continue
+
             fig.add_traces(
                 go.Scatter(
                     x=data_store.df["capacity"],
@@ -59,20 +69,22 @@ class DischargePlotter:
                         axis=-1,
                     ),
                     name=data_store.session_name,
+                    mode='lines',
+                    line={ 'width': 1.2 },
                 )
             )
 
         fig.update_traces(mode="lines", hovertemplate=None)
-        fig.update_layout(hovermode="x unified", height=1000)
+        fig.update_layout(hovermode="closest", height=1000)
 
         fig.update_traces(
             hovertemplate="<br>" + "<br>".join(
                 [
-                    "capacity: %{x}",
-                    "voltage: %{y}",
-                    "current: %{customdata[0]}",
-                    "time sec: %{customdata[1]}",
-                    "time: %{customdata[2]}",
+                    "capacity  | %{x}",
+                    "voltage   | %{y}",
+                    "current   | %{customdata[0]}",
+                    "time sec  | %{customdata[1]}",
+                    "time      | %{customdata[2]}",
                 ]
             )
         )

@@ -16,6 +16,8 @@ def main(
     session_name: str,
     port: Annotated[str, typer.Option()] = conf.DEFAULT_SERIAL_PORT,
     data_path: Annotated[Path, typer.Option()] = conf.DEFAULT_DATA_STORAGE_PATH,
+    start_new_session: Annotated[bool, typer.Option()] = False,
+    current: Annotated[float | None, typer.Option()] = None,
 ):
     if data_path.exists() is False:
         data_path.mkdir()
@@ -23,6 +25,10 @@ def main(
     try:
         dl24 = DL24(port)
         data_store = DL24DataStore(dl24, session_name, data_path)
+
+        if start_new_session and data_store.session_exists():
+            raise Exception("Session already exists. Cannot start new session with the same name.")
+
         data_store.restore_session()
 
         dash_app = dash.Dash()
@@ -31,10 +37,17 @@ def main(
 
         plotter.bind_and_auto_update()
 
-        async_main_wrapper_partial = partial(async_main_wrapper, data_store)
+        if current:
+            dl24.set_current(current)
+
+        if start_new_session:
+            dl24.reset_counters()
+
+            data_store.update()  # log initial voltage
+            dl24.enable()
 
         # run all async stuff in another thread
-        th = Thread(target=async_main_wrapper_partial)
+        th = Thread(target=partial(async_main_wrapper, data_store))
 
         th.start()
 

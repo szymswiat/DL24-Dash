@@ -11,27 +11,40 @@ from dl24_dash.plotting.plotting import DischargePlotter
 
 
 def main(
-    session_names: Annotated[list[str], typer.Argument()],
+    data_dirs: Annotated[list[Path], typer.Argument()],
     save: Annotated[Path | None, typer.Option()] = None,
-    data_path: Annotated[Path, typer.Option()] = conf.DEFAULT_DATA_STORAGE_PATH,
-    plot_all: Annotated[bool, typer.Option()] = False,
+    min_current: Annotated[float | None, typer.Option()] = None,
 ):
-    if plot_all:
-        session_names = sorted([p.stem for p in data_path.glob("*.csv")])
+    files: list[Path] = []
 
-    handlers = [
-        DL24DataStore(None, session_name, data_path) for session_name in session_names
+    for data_dir in data_dirs:
+        files.extend(sorted(data_dir.glob("**/*.csv")))
+
+    store_list = [
+        DL24DataStore(None, session_file.stem, session_file.parent)
+        for session_file in files
     ]
-    for handler in handlers:
-        handler.restore_session()
+
+    for store in store_list:
+        store.restore_session()
+
+        if min_current is not None:
+            store.filter_by_current(min_current)
+    for store in store_list:
+        store.restore_session()
+
+        if min_current is not None:
+            store.filter_by_current(min_current)
 
     dash_app = dash.Dash()
 
     plotter = DischargePlotter(dash_app)
-    plotter.add_data_stores(handlers)
+    plotter.add_data_stores(store_list)
     plotter.write_graph()
 
     if save:
-        plotter.plot_data().write_html(f"{data_path}/{save}")
+        plotter.plot_data().write_html(
+            f"{'__'.join(data_dir.as_posix().replace('/', '_') for data_dir in data_dirs)}/{save}"
+        )
     else:
         dash_app.run(debug=False)
