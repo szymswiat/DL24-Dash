@@ -85,6 +85,9 @@ class DL24DataStore:
         if self.df is None:
             self.df = pl.from_dict(data.as_df_row())
         else:
+            assert self._dl24
+            if data.voltage < self._dl24.get_voltage_cutoff():
+                return
             if (
                 abs(DL24Data.from_row(self.df[-1]).voltage - data.voltage) > 0.02
             ) or data.current > 0.001:
