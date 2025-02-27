@@ -280,11 +280,3 @@ class DL24:
 
     def disable(self):
         self.execute_command(OUTPUT, [0, 0])
-
-
-__all__ = [
-    "DL24",
-    "DL24Error",
-    "DL24SerialError",
-    "DL24NoResponseError",
-]

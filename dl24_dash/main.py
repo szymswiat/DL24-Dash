@@ -10,6 +10,7 @@ app.registered_commands.append(
     CommandInfo(
         name="monitor",
         callback=monitor,
+        help="A tool for real-time discharge monitoring",
     )
 )
 
@@ -17,6 +18,7 @@ app.registered_commands.append(
     CommandInfo(
         name="plot",
         callback=plot,
+        help="A tool for comparing previously collected results",
     )
 )
 

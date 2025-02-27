@@ -1,97 +1,92 @@
-dl24-electronic-load
-=====
+# DL24-Dash
 
-Python library and CLI tools for DL24 electronic load device.
+A Python-based CLI tool for monitoring and visualizing data from DL24 electronic load devices. This tool provides real-time monitoring capabilities and data visualization through an interactive dashboard.
+
+## Features
+
+- Real-time discharge monitoring
+- Automatic data logging to CSV files
+- Interactive data visualization dashboard
+- Support for comparing multiple discharge sessions
+- Bluetooth serial communication with DL24 devices
+
+## Prerequisites
+
+- Python 3.x
+- Bluetooth connectivity
+- DL24 electronic load device
 
 ## Installation
 
-It is recommended to set a virtual Python environment up before installing packages.
-
-```shell
-virtualenv env
-source env/bin/activate
-
-pip install -U git+https://github.com/KrystianD/dl24-electronic-load
+1. Install using pip:
+```bash
+pip install dl24-dash
 ```
 
-## DL24 management
+Or using UV (faster alternative):
+```bash
+# Install UV if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-`tools.manage` module is used to send commands to the DL24 device over serial port link.
-
-### Usage
-
-```shell
-# Read settings and measurements
-dl24-manage -p /dev/ttyUSB0 read
-
-# Set the parameters up and start
-dl24-manage -p /dev/ttyUSB0 set-current 10
-dl24-manage -p /dev/ttyUSB0 set-voltage-cutoff 10.7
-dl24-manage -p /dev/ttyUSB0 enable
+# Install DL24-Dash
+uv tool install dl24-dash
 ```
 
-### Supported commands
-
-| Command                        | Description                                |
-|--------------------------------|--------------------------------------------|
-| `set-current <amps>`           | set discharging current                    |
-| `set-voltage-cutoff <voltage>` | set voltage at which discharging will stop |
-| `set-timer <seconds>`          | set maximum discharging time               |
-| `enable`                       | enable discharger                          |
-| `disable`                      | disable discharger                         |
-| `reset`                        | reset cumulative statistics                |
-| `read -f [text,json]`          | read current settings and measurements     |
-
-### Example
-
-```shell
-$ dl24-manage -p /dev/ttyUSB0 read -f json
-{
-  "enabled": true,
-  "voltage": 11.809,
-  "current": 9.999,
-  "energy": 19.841,
-  "capacity": 238.5,
-  "time": "01:59:03",
-  "temperature": 35,
-  "current_limit": 10.0,
-  "voltage_cutoff": 10.7,
-  "timer": "00:00:00"
-}
+2. Set up the environment:
+```bash
+uv sync
 ```
 
-## DL24 monitoring
+## Development Setup
 
-`tools.monitor` module displays real-time discharging data and can save discharging charts.
+For development or if you want to run from source:
 
-### Usage
-
-```shell
-# View real time measurements
-dl24-monitor -p /dev/ttyUSB0
-
-# View real time measurements and save to test.csv file
-dl24-monitor -p /dev/ttyUSB0 -o test.csv
-dl24-monitor -p /dev/ttyUSB0 -o test.csv --append
+1. Install Astral UV (Python package manager):
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-### Example
-
-```
-$ dl24-monitor -p /dev/ttyUSB0
-12.06 V | 10.00 A | 120.67 W |  91.30 Wh |  7.51 Ah | 0d 00:45:05 | 37 °C
+2. Set up the development environment:
+```bash
+uv sync
 ```
 
-## Charts plotting
+## Usage
 
-`tools.plotter` module plots charts using matplotlib from the CSV file saved with `tools.monitor`.
+### Connecting the Device
 
-#### Usage
+1. Connect your DL24 device via Bluetooth in serial port mode
+2. The device should be available at `/dev/rfcomm0` (path may vary depending on your system)
 
-```shell
-python -m tools.plotter test.csv
+### Monitoring Tool
+
+Start a new monitoring session:
+```bash
+uv run dl24-dash monitor --start-new-session --current 4 test_discharge
 ```
 
-#### Example
+Parameters:
+- `--start-new-session`: Initiates a new monitoring session
+- `--current 4`: Sets the discharge current to 4A
+- `test_discharge`: Session name for data storage
 
-![Plotter example](.docs/plotter_example.png)
+The monitoring dashboard will be available at [http://127.0.0.1:8050/](http://127.0.0.1:8050/)
+
+### Plotting Tool
+
+Compare multiple discharge sessions:
+```bash
+uv run dl24_dash/main.py plot data1 data2 data3
+```
+
+The tool will:
+- Scan specified directories for CSV files
+- Generate an interactive comparison chart
+- Display results at [http://127.0.0.1:8050/](http://127.0.0.1:8050/)
+
+## Help
+
+For additional information and command options:
+```bash
+uv run dl24_dash/main.py --help
+```

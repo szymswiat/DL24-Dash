@@ -13,11 +13,23 @@ import asyncio
 
 
 def main(
-    session_name: str,
-    port: Annotated[str, typer.Option()] = conf.DEFAULT_SERIAL_PORT,
-    data_path: Annotated[Path, typer.Option()] = conf.DEFAULT_DATA_STORAGE_PATH,
-    start_new_session: Annotated[bool, typer.Option()] = False,
-    current: Annotated[float | None, typer.Option()] = None,
+    session_name: Annotated[str, typer.Argument(help="Session name")],
+    port: Annotated[
+        str,
+        typer.Option(help="Path to bluetooth serial port device"),
+    ] = conf.DEFAULT_SERIAL_PORT,
+    data_path: Annotated[
+        Path,
+        typer.Option(help="Path to store data"),
+    ] = conf.DEFAULT_DATA_STORAGE_PATH,
+    start_new_session: Annotated[
+        bool,
+        typer.Option(help="Start new session or append to existing one"),
+    ] = False,
+    current: Annotated[
+        float | None,
+        typer.Option(help="Current to set at the beginning of the session"),
+    ] = None,
 ):
     if data_path.exists() is False:
         data_path.mkdir()
@@ -27,7 +39,9 @@ def main(
         data_store = DL24DataStore(dl24, session_name, data_path)
 
         if start_new_session and data_store.session_exists():
-            raise Exception("Session already exists. Cannot start new session with the same name.")
+            raise Exception(
+                "Session already exists. Cannot start a new session with the same name."
+            )
 
         data_store.restore_session()
 

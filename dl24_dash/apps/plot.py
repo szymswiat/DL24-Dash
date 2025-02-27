@@ -5,15 +5,23 @@ import typer
 from pathlib import Path
 from typing_extensions import Annotated
 
-from dl24_dash import conf
 from dl24_dash.dl24 import DL24DataStore
 from dl24_dash.plotting.plotting import DischargePlotter
 
 
 def main(
-    data_dirs: Annotated[list[Path], typer.Argument()],
-    save: Annotated[Path | None, typer.Option()] = None,
-    min_current: Annotated[float | None, typer.Option()] = None,
+    data_dirs: Annotated[
+        list[Path],
+        typer.Argument(help="Data directories to scan"),
+    ],
+    save: Annotated[
+        Path | None,
+        typer.Option(help="Save plot to file"),
+    ] = None,
+    min_current: Annotated[
+        float | None,
+        typer.Option(help="Filter out all data rows with current below this value"),
+    ] = None,
 ):
     files: list[Path] = []
 
